@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FaEdit, FaEnvelope, FaLock, FaSave, FaShoppingBag, FaTimes, FaUser } from 'react-icons/fa';
+import { FaEdit, FaEnvelope, FaLock, FaSave, FaTimes, FaUser } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import SummaryApi from '../common';
@@ -11,8 +11,6 @@ const Profile = () => {
 
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [orders, setOrders] = useState([]);
-    const [loadingOrders, setLoadingOrders] = useState(false);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -33,30 +31,6 @@ const Profile = () => {
             });
         }
     }, [user]);
-
-    useEffect(() => {
-        fetchOrders();
-    }, []);
-
-    const fetchOrders = async () => {
-        try {
-            setLoadingOrders(true);
-            const response = await fetch(SummaryApi.getOrder.url, {
-                method: SummaryApi.getOrder.method,
-                credentials: 'include'
-            });
-
-            const responseData = await response.json();
-
-            if (responseData.success) {
-                setOrders(responseData.data || []);
-            }
-        } catch (error) {
-            console.error('Error fetching orders:', error);
-        } finally {
-            setLoadingOrders(false);
-        }
-    };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -133,21 +107,6 @@ const Profile = () => {
         setIsEditing(false);
     };
 
-    const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
-    };
-
-    const formatPrice = (price) => {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD'
-        }).format(price);
-    };
-
     if (!user) {
         return (
             <div className="container mx-auto px-4 py-8">
@@ -162,7 +121,7 @@ const Profile = () => {
         <div className="container mx-auto px-4 py-8 mt-16">
             <div className="max-w-4xl mx-auto">
                 {/* Profile Header */}
-                <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+                <div className="bg-white rounded-lg shadow-md p-6">
                     <div className="flex items-center justify-between mb-6">
                         <h1 className="text-3xl font-bold text-gray-800">My Profile</h1>
                         {!isEditing ? (
@@ -209,7 +168,6 @@ const Profile = () => {
                                     <FaUser className="text-4xl text-gray-500" />
                                 )}
                             </div>
-                            {/* <p className="text-sm text-gray-600">Profile Picture</p> */}
                         </div>
 
                         {/* Profile Details */}
@@ -291,64 +249,6 @@ const Profile = () => {
                             </div>
                         </div>
                     </div>
-                </div>
-
-                {/* Order History */}
-                <div className="bg-white rounded-lg shadow-md p-6">
-                    <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                        <FaShoppingBag />
-                        Order History
-                    </h2>
-
-                    {loadingOrders ? (
-                        <div className="text-center py-8">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                            <p className="mt-4 text-gray-600">Loading orders...</p>
-                        </div>
-                    ) : orders.length === 0 ? (
-                        <div className="text-center py-8">
-                            <FaShoppingBag className="text-4xl text-gray-400 mx-auto mb-4" />
-                            <p className="text-gray-600">No orders found</p>
-                        </div>
-                    ) : (
-                        <div className="space-y-4">
-                            {orders.map((order) => (
-                                <div key={order._id} className="border border-gray-200 rounded-lg p-4">
-                                    <div className="flex justify-between items-start mb-3">
-                                        <div>
-                                            <p className="font-semibold text-gray-800">Order #{order._id.slice(-8)}</p>
-                                            <p className="text-sm text-gray-600">{formatDate(order.createdAt)}</p>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="font-semibold text-lg">{formatPrice(order.totalAmount)}</p>
-                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${order.paymentDetails?.payment_status === 'paid'
-                                                ? 'bg-green-100 text-green-800'
-                                                : 'bg-yellow-100 text-yellow-800'
-                                                }`}>
-                                                {order.paymentDetails?.payment_status || 'Pending'}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                                        {order.productDetails?.map((product, index) => (
-                                            <div key={index} className="flex items-center gap-3 p-2 bg-gray-50 rounded">
-                                                <img
-                                                    src={product.image?.[0]}
-                                                    alt={product.name}
-                                                    className="w-12 h-12 object-cover rounded"
-                                                />
-                                                <div className="flex-1 min-w-0">
-                                                    <p className="text-sm font-medium text-gray-800 truncate">{product.name}</p>
-                                                    <p className="text-xs text-gray-600">Qty: {product.quantity}</p>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
                 </div>
             </div>
         </div>

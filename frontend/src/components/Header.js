@@ -92,6 +92,7 @@ const Header = () => {
               menuDisplay && (
                 <div className='absolute bg-white bottom-0 top-11 h-fit p-2 shadow-lg rounded' >
                   <nav>
+                    <Link to={"/profile"} className='whitespace-nowrap hidden md:block hover:bg-slate-100 p-2' onClick={() => setMenuDisplay(preve => !preve)}>My Profile</Link>
                     <Link to={"/orders"} className='whitespace-nowrap hidden md:block hover:bg-slate-100 p-2' onClick={() => setMenuDisplay(preve => !preve)}>My Orders</Link>
                     {
                       user?.role === ROLE.ADMIN && (
